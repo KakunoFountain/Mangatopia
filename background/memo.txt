@@ -1,0 +1,57 @@
+1. 端末を立ち上げてからdockerフォルダへ移動
+cd Programs/kakuno/Mangatopia/background/docker/
+
+2. dockerの起動
+docker-compose up -d
+
+3. 仮想環境へ入る
+docker exec -it adet bash
+
+4. 仮想環境上で作業フォルダへ移動
+cd Mangatopia/background
+
+4.5 必要なライブラリをインストール
+pip install flask, openai, IPython
+
+5. Pythonコードを実行
+[ABCNetv2]
+cd ../ABCNetv2
+CUDA_VISIBLE_DEVICES=0 python demo/demo.py --config-file configs/eval.yaml \
+--input demo_images/test/ --output demo_results/test/ --opts MODEL.WEIGHTS ABCNetv2.pth
+
+[TRBA]
+cd ../TRBA
+CUDA_VISIBLE_DEVICES=0 python demo.py --model_name TRBA --SARdecode --image_folder ../ABCNetv2/demo_results/test/ --saved_model TRBA_Rot+SAR.pth
+
+[OpenAI]
+cd ../
+python OpenAI_GPT4o.py --picnum 2 --onmtpnum 2 \
+--config-file ABCNetv2/configs/eval.yaml \
+--input ABCNetv2/demo_images/test/ --output ABCNetv2/demo_results/test/ \
+--model_name TRBA --SARdecode --image_folder ABCNetv2/demo_results/test/ --saved_model TRBA/TRBA_Rot+SAR.pth \
+--opts MODEL.WEIGHTS ABCNetv2/ABCNetv2.pth
+
+[Flask]
+python Flaskapp.py
+
+
+6. 仮想環境を閉じる
+a) ctrl+D
+b) docker-compose stop
+c) docker-compose rm
+
+
+※必要なコマンド一覧
+pwd：パスの表示
+ls：フォルダ内のファイル一覧を表示
+cd：フォルダ移動
+
+python3はpythonに書き換える
+
+
+OpenAPIキー：
+・first_key：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
+
+GitHubトークン：
+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
+

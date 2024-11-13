@@ -1,0 +1,26 @@
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+dataset_root:    ../COO-data/TRBA_data/lmdb/test	 dataset: /
+sub-directory:	/.	 num samples: 6765
+Acc 56.48
+--------------------------------------------------------------------------------
+accuracy: lmdb/test: 56.48	total_accuracy: 56.48	averaged_infer_time: 2.641	# parameters: 49.87
+56.48
+Total_accuracy:56.48
+--------------------------------------------------------------------------------
+dataset_root:    ../COO-data/TRBA_data/lmdb/test	 dataset: /
+sub-directory:	/.	 num samples: 6765
+Acc 56.47
+--------------------------------------------------------------------------------
+accuracy: lmdb/test: 56.47	total_accuracy: 56.47	averaged_infer_time: 2.661	# parameters: 49.87
+56.47
+Total_accuracy:56.47
+--------------------------------------------------------------------------------
+dataset_root:    ../COO-data/TRBA_data/lmdb/test	 dataset: /
+sub-directory:	/.	 num samples: 6765
+Acc 56.47
+--------------------------------------------------------------------------------
+accuracy: lmdb/test: 56.47	total_accuracy: 56.47	averaged_infer_time: 2.647	# parameters: 49.87
+56.47
+Total_accuracy:56.47

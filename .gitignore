@@ -1,3 +1,14 @@
+# only this project
+COO-data/
+M4C-COO/
+MTSv3/
+*/memo.txt
+
+# IMages
+*.jpg
+*.jpeg
+*.png
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

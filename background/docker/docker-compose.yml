@@ -1,0 +1,23 @@
+services:
+  dev:
+    container_name: adet
+    image: adet:latest
+    runtime: nvidia
+    command: /bin/bash
+    working_dir: /home/appuser/Programs/kakuno
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /home/student/Programs/kakuno:/home/appuser/Programs/kakuno
+    environment:
+      - DISPLAY=$DISPLAY
+      - TERM=xterm-256color
+    ports:
+      - "8052:22"
+      - "6009:6006"
+      - "83:80"
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    shm_size: 32g
+    #stdin_open: true
+    tty: true
