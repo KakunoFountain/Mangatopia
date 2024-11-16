@@ -12,7 +12,7 @@ from detectron2.utils.logger import setup_logger
 from ABCNetv2.demo import demo as abcnet
 from TRBA import demo as trba
 
-openai.api_key="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"
+openai.api_key = os.getenv("OPENAI_APIKEY")
 
 
 def encode_image(image_path):
