@@ -7,12 +7,7 @@ import openai
 import base64
 from IPython.display import Image, display, Audio, Markdown
 
-#from detectron2.utils.logger import setup_logger
-
-#from ABCNetv2.demo import demo as abcnet
-#from TRBA import demo as trba
-
-openai.api_key = os.getenv("OPENAI_APIKEY")
+#openai.api_key = os.getenv("OPENAI_APIKEY")
 
 
 def encode_image(image_path):
@@ -80,60 +75,25 @@ def get_parser():
 
 
 #this is the summerized function
-def main(pic_name, onmtpnum):
-  print('aaafssdfsfda')
+def main(pic_name, codnat):
 
-  terminal = False
-  if terminal == False:
-    print('aaada')
-    sys.argv = ["ABCNetv2/demo.demo.py", \
-                "--config-file", "ABCNetv2/configs/eval.yaml", \
-                "--input", "ABCNetv2/demo_images/test/",  "--output", "ABCNetv2/demo_results/test/", \
-                "--opts", "MODEL.WEIGHTS",  "ABCNetv2/ABCNetv2.pth"]
-
-  # openaiに渡す材料集め
-  #onmtp_codnat, pics_name = abcnet.main()  #type(pics_name)=list
-  # test value:
-  onmtp_codnat=[[  6, 374,  94, 460],
-       [219, 230, 296, 343],
-       [214, 379, 285, 445]], [[ 169,  656,  225,  737],
-       [ 754,  199,  796,  237],
-       [ 236,  733,  291,  810],
-       [ 932,  528,  982,  613]]
-  pics_name=['sample_kimetsu.jpg', 'y_63ec7ad5931e1.jpg']
-  onmtp_name=['さんぷる']
-  
-  if terminal == False:
-    sys.argv = ["OpenAI_GPT4o.py", "--picnum", pics_name.index(pic_name), "--onmtpnum", onmtpnum]
-
-  
-  mp.set_start_method("spawn", force=True)
-  args, unknown = get_parser().parse_known_args()
-  #logger = setup_logger()
-  #logger.info("Arguments: " + str(args))
-
-  #input("dghmsgidoht")
-  if not ( np.isnan(args.picnum) or np.isnan(args.onmtpnum) ):
-    #input('sdffsdghgs')
+  if not ( pic_name == 'defalt' or codnat == 'defalt' ):
 
     #実行毎にオノマトペ履歴を消去
-    for filename in glob.glob(os.path.join("./ABCNetv2/demo_results/test/", "*.jpg")):
+    for filename in glob.glob(os.path.join("./uploadpics", "*.jpg")):
       os.remove(filename)
 
-    #onmtp_name = trba.main(pics_name, args.picnum, args.onmtpnum)
+    #openai_outputscript = descripting_onmtp(codnat=onmtp_codnat, pic_name=pics_name, onmtp_name=onmtp_name, picn=args.picnum, onpn=args.onmtpnum)
 
-    
-    #openaiを実行
-    #logger.info(f"log of line 96: pics_name[args.picnum] = {pics_name[args.picnum]}")
-    openai_outputscript = descripting_onmtp(codnat=onmtp_codnat, pic_name=pics_name, onmtp_name=onmtp_name, picn=args.picnum, onpn=args.onmtpnum)
-
-    return openai_outputscript
+    #return openai_outputscript
   
   else:
     return "ERROR"
 
 
 if __name__ == "__main__":
+  pic_name = 'defalt'
+  onmtpnum = 'defalt'
   pic_name = 'y_63ec7ad5931e1.jpg'
   onmtpnum = 1
   main(pic_name, onmtpnum)
