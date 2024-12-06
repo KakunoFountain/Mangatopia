@@ -1,25 +1,28 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify, redirect
 import os
+import json
+import requests
 from PIL import Image
 
-#from OpenAI_GPT4o import main as gpt
+from OpenAI_GPT4o import uploaded_image, descripting_onmtp
 
 
 app = Flask(__name__)
 UPLOAD_FOLDER = './uploadpics'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+data = {}
 
 # アップロードされたファイルを保存する関数
 def save_image(file):
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-    
-    if ".jpg" in file_path or ".jpeg" in file_path:
-        file.save(file_path)
+    file_path = os.path.join(UPLOAD_FOLDER, data['fileId']+".jpg")
+    im = Image.open(file)
+
+    if ".jpg" in file.filename or ".jpeg" in file.filename:
+        pass
     else:
-        im = Image.open(file_path)
-        im = im.convert("RGB")
         file_path = file_path + ".jpg"
-        im.save(file_path)
+        im = im.convert("RGB")
+    im.save(file_path, "JPEG")
     
     return file_path
 
@@ -27,25 +30,64 @@ def save_image(file):
 def index():
     return render_template('index.html')
 
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    if 'image' not in request.files:
-        return 'No file part'
-    file = request.files['image']
-    
-    if file.filename == '':
-        return 'No selected file'
-    
-    if file:
-        file_path = save_image(file)
-        filename = file_path.split('/')[-1]
-        onmtpnum = request.form['number']
-        print("◆◆◆    Received filename:{}, onmtpnum:{}".format(filename, onmtpnum))
-        #openai_outputscript = gpt(filename, onmtpnum)
-        openai_outputscript = "aa"
-        return f"description by GPT: {openai_outputscript}"
 
-#openai_outputscript = gpt(im)
+    """HTMLフォームから送られてきた画像ファイルを処理する"""
+    jsonfile = json.loads( request.files['coordinates'].read() )
+    data['codnat'] = jsonfile['codnat']
+    
+    if 'image' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    
+    file = request.files['image']
+
+    if file.filename == '':
+        if not jsonfile['fileId'] == '':
+            data['fileId'] = jsonfile['fileId']
+            data['filepath'] = os.path.join(UPLOAD_FOLDER, jsonfile['fileId']+".jpg")
+            return jsonify({"message": "File selected successfully", "fileId": jsonfile['fileId'], "codnat": jsonfile['codnat']}), 200
+        
+        else:
+            return jsonify({"error": "No existing file *Please uploading your file again"}), 400
+
+    else:
+        # 画像ファイルをopenaiにアップロード
+        uploaded_img = uploaded_image(file)
+
+
+        # 画像ファイルを保存
+        if not jsonfile['codnat'] == []:
+            data['filepath'] = os.path.join(UPLOAD_FOLDER, uploaded_img.id+".jpg")
+            data['fileId'] = uploaded_img.id
+            #filepath = save_image(file)
+            return jsonify({"message": "File saved successfully", "fileId": uploaded_img.id, "codnat": jsonfile['codnat']}), 200
+        else:
+            return jsonify({"error": "Failed to save file"}), 400
+
+
+
+@app.route('/chat', methods=['GET'])
+def chat_with_gpt():
+    """fileIdと座標を受け取り、GPTで説明を生成して返す"""
+    print(data)
+
+    # アップロードされたファイルを読み込む
+    if not os.path.exists(data['filepath']):
+        return jsonify({"error": "File not found"}), 404
+
+    # GPTにリクエスト
+    try:
+        #outputscript = "aaa"
+        outputscript = descripting_onmtp(filepath=data['filepath'], fileId=data['fileId'], codnat=data['codnat'])
+    except Exception as e:
+        return jsonify({"error": f"GPT request failed: {str(e)}"}), 500
+
+    return jsonify({"explanation": outputscript}), 200
+
+
+
 
 
 

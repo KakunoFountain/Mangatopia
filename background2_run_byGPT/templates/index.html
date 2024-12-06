@@ -10,11 +10,12 @@
     <h1>Upload an Image</h1>
     <form action="/upload" method="POST" enctype="multipart/form-data">
         <label for="image">Choose an image:</label>
-        <input type="file" id="image" name="image" accept="image/*" required>
-        <button type="submit">Upload</button>
+        <input type="file" id="image" name="image" accept="image/*">
         <p></p>
-        <label for="number" method="POST" enctype="multipart/form-data">Choose an onomatopoeia(number):</label>
-        <input type="number" id="number" name="number" min="0" max="9" required>
+        <label for="coordinates" method="POST" enctype="multipart/form-data">Choose an onomatopoeia(json):</label>
+        <input type="file" id="coordinates" name="coordinates" accept=".json" required>
+        <p></p>
+        <button type="submit">Upload</button>
     </form>
 
 </body>
