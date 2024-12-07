@@ -1,7 +1,5 @@
-import os, glob
-import sys
+import os
 import time
-import argparse
 import numpy as np
 import multiprocessing as mp
 from openai import OpenAI
@@ -167,21 +165,6 @@ def descripting_onmtp(filepath, fileId, codnat):
     print(outputscript)
 
     return outputscript
-
-
-
-def get_parser():
-  parser = argparse.ArgumentParser()
-  parser.add_argument(
-      "picnum", type=int,
-      help="a selected picture in the folder",
-  )
-  parser.add_argument(
-        "onmtpnum", type=int,
-        help="a selected onomatopoeia in the picture",
-    )
-  
-  return parser
 
 
 

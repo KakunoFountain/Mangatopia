@@ -1,7 +1,6 @@
 from flask import Flask, request, render_template, jsonify, redirect
 import os
 import json
-import requests
 from PIL import Image
 
 from OpenAI_GPT4o import uploaded_image, descripting_onmtp
