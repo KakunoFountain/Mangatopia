@@ -3,6 +3,6 @@
     "version": "1.0.0",
     "main": "./background2_run_byGPT/Flaskapp.py",
     "scripts": {
-        "start": "python ./background2_run_byGPT/Flaskapp.py"
+        "start": "python3 ./background2_run_byGPT/Flaskapp.py"
     }
 }

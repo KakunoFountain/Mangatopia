@@ -1,1 +1,1 @@
-web: python ./background2_run_byGPT/Flaskapp.py
+web: python3 ./background2_run_byGPT/Flaskapp.py
