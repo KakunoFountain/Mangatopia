@@ -8,8 +8,10 @@ from OpenAI_GPT4o import uploaded_image, descripting_onmtp
 
 
 app = Flask(__name__)
-UPLOAD_FOLDER = './uploadpics'
+UPLOAD_FOLDER = 'uploadpics'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+#解析対象画像の情報 -> "fileId", "codnat"
 data = {}
 
 # アップロードされたファイルを保存する関数
@@ -43,8 +45,10 @@ def upload_file():
     
     file = request.files['image']
 
+    #画像がアップロードされなかった場合
     if file.filename == '':
-        if not jsonfile['fileId'] == '':
+        #指定されたfileIdに対応する画像がサーバに保存されていた場合
+        if not jsonfile['fileId'] == '' and os.path.exists( os.path.join(UPLOAD_FOLDER, jsonfile['fileId']+".jpg") ):
             data['fileId'] = jsonfile['fileId']
             data['filepath'] = os.path.join(UPLOAD_FOLDER, jsonfile['fileId']+".jpg")
             return jsonify({"message": "File selected successfully", "fileId": jsonfile['fileId'], "codnat": jsonfile['codnat']}), 200
@@ -56,12 +60,11 @@ def upload_file():
         # 画像ファイルをopenaiにアップロード
         uploaded_img = uploaded_image(file)
 
-
         # 画像ファイルを保存
         if not jsonfile['codnat'] == []:
             data['filepath'] = os.path.join(UPLOAD_FOLDER, uploaded_img.id+".jpg")
             data['fileId'] = uploaded_img.id
-            #filepath = save_image(file)
+            filepath = save_image(file)
             return jsonify({"message": "File saved successfully", "fileId": uploaded_img.id, "codnat": jsonfile['codnat']}), 200
         else:
             return jsonify({"error": "Failed to save file"}), 400
@@ -85,10 +88,6 @@ def chat_with_gpt():
         return jsonify({"error": f"GPT request failed: {str(e)}"}), 500
 
     return jsonify({"explanation": outputscript}), 200
-
-
-
-
 
 
 if __name__ == "__main__":
