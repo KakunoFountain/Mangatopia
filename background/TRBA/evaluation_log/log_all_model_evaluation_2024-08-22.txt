@@ -1,6 +1,0 @@
-./result/	Total_accuracy:56.48
-56.48
-./result/	Total_accuracy:56.47
-56.47
-./result/	Total_accuracy:56.47
-56.47

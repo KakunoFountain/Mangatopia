@@ -22,7 +22,6 @@ def save_image(file):
     if ".jpg" in file.filename or ".jpeg" in file.filename:
         pass
     else:
-        file_path = file_path + ".jpg"
         im = im.convert("RGB")
     im.save(file_path, "JPEG")
     

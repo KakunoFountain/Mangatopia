@@ -1,11 +1,6 @@
 import os
-import time
-import numpy as np
-import multiprocessing as mp
 from openai import OpenAI
 import base64
-from IPython.display import Image, display, Audio, Markdown
-
 
 client = OpenAI(
     api_key = os.getenv("OPENAI_APIKEY")
@@ -22,33 +17,9 @@ def encode_image(image_path):
 def uploaded_image(file):
    uploaded_img = client.files.create(
             file=file.stream,  #ファイルをそのまま渡す
-            purpose="assistants"
+            purpose="user_data"
         )
    return uploaded_img
-
-# アシスタントが回答のメッセージを返すまで待つ関数
-def wait_for_assistant_response(thread_id, run_id):
-    while True:
-        time.sleep(3)
-        # 実行ステータスの取得
-        run = client.beta.threads.runs.retrieve(
-            thread_id=thread_id,
-            run_id=run_id
-        )
-        status = run.status
-        if status in ["completed", "cancelled", "expired", "failed"]:
-            print(status)
-            break
-
-# スレッドのメッセージを確認する関数
-def thread_messages(thread_id):
-    msgs = client.beta.threads.messages.list(thread_id=thread_id)
-    print(msgs)
-    for m in msgs:
-        assert m.content[0].type == "text"
-    return {"role": m.role, "message": m.content[0].text.value}
-
-
 
 #this is the summerized function
 def descripting_onmtp(filepath, fileId, codnat):
@@ -87,81 +58,7 @@ def descripting_onmtp(filepath, fileId, codnat):
         temperature=0.7
     )
 
-
-    # # アシスタントの作成
-    # assistant_1 = client.beta.assistants.create(
-    #     name="onmtp",
-    #     instructions=instructions,
-    #     model="gpt-4o",
-    #     tools=[{"type": "code_interpreter"}]
-    #     #file_ids=[fileId]
-    #     # tool_resource={
-    #     #    "code_interpreter": {
-    #     #     "file_ids": [fileId]
-    #     #    }
-    #     # }
-    # )
-    # print("assistant_1")
-    # # response = client.chat.completions.create(
-    # #    assistant_id=assistant_1.id,
-    # #    model='gpt-4-turbo',
-    # #    messages=[
-    # #         {
-    # #             "role": "system",
-    # #             "content": instructions
-    # #         },
-    # #         {
-    # #             "role": "user",
-    # #             "content": [
-    # #                 {"type": "text", "text": inputscript}
-    # #             ]
-    # #         }
-    # #     ],
-    # #     max_tokens=600,
-    # #     temperature=0.7
-    # # )
-
-    # # スレッドの作成
-    # thread_1 = client.beta.threads.create(
-    #     messages=[{
-    #         "role": "user",
-    #         "content": inputscript,
-    #         #"tools": [{"type": "code_interpreter"}],
-    #         "attachments": [
-    #             {
-    #               "tools": [{"type": "code_interpreter"}], 
-    #               #"type": "image", 
-    #               #"content": fileId, 
-    #               "file_id": fileId
-    #             }
-    #         ]
-    #     }]
-    # )
-    # print("thread_1")
-    # # 実行
-    # run = client.beta.threads.runs.create(
-    #     thread_id=thread_1.id,
-    #     assistant_id=assistant_1.id
-    #     #instructions="create CTR report from [related files]"
-    # )
-    # print("run")
-    # wait_for_assistant_response(thread_1.id,  run.id)
-
-    # # if run.status == 'completed': 
-    # #     messages = client.beta.threads.messages.list(
-    # #         thread_id=thread_1.id
-    # #     )
-    # #     print(messages)
-    # # else:
-    # #     print(run.status)
-
-    # # スレッドの削除
-    # #client.beta.threads.delete(thread_1.id)
-    # print("wait")
-
     outputscript = response.choices[0].message.content
-    #outputscript = response
-    #outputscript = thread_messages(thread_1.id)['message']
     print(outputscript)
 
     return outputscript
