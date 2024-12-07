@@ -15,4 +15,4 @@ COPY . ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Run the web service on container startup.
-ENTRYPOINT ["gunicorn", "-w", "2", "-b", "0.0.0.0", "src.app:app"]
+CMD ["gunicorn", "main:app", "daemon off;"]
