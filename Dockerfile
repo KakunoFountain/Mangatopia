@@ -15,4 +15,4 @@ COPY . ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Run the web service on container startup.
-CMD ["gunicorn", "flask_app:app", "--config", "/var/www/gunicorn.py" ]
+CMD ["gunicorn"]
