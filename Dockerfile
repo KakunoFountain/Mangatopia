@@ -15,4 +15,4 @@ COPY . ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Run the web service on container startup.
-CMD ["gunicorn", "main:app"]
+CMD ["python", "./background2_run_byGPT/Flaskapp.py"]
