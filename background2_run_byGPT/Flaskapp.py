@@ -9,6 +9,7 @@ from OpenAI_GPT4o import uploaded_image, descripting_onmtp
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploadpics'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+PORT = os.getenv("PORT")
 
 #解析対象画像の情報 -> "fileId", "codnat"
 data = {}
@@ -91,4 +92,4 @@ def chat_with_gpt():
 
 if __name__ == "__main__":
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-    app.run(debug=False, host="0.0.0.0", port=5000)
+    app.run(debug=False, host="0.0.0.0", port=PORT)

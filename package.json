@@ -1,8 +1,0 @@
-{
-    "name": "Mangatopia",
-    "version": "1.0.0",
-    "main": "./background2_run_byGPT/Flaskapp.py",
-    "scripts": {
-       "start": "gunicorn main:app"
-    }
-}
