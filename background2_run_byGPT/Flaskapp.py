@@ -38,7 +38,10 @@ def upload_file():
     if file.filename == '':
         #指定されたfileIdに対応する画像がサーバに保存されていた場合
         if not jsonfile['fileId'] == '' and os.path.exists( os.path.join(UPLOAD_FOLDER, jsonfile['fileId']+".jpg") ):
-            
+            target = next((data.index(d) for d in data if d['fileId'] == jsonfile['fileId']), None)
+            if target == None:
+                return jsonify({"error": "No existing file *Please uploading your file again"}), 400
+            data[target]['codnat'] = jsonfile['codnat']
             return jsonify({"message": "File selected successfully", "fileId": jsonfile['fileId'], "codnat": jsonfile['codnat']}), 200
         else:
             return jsonify({"error": "No existing file *Please uploading your file again"}), 400
@@ -47,7 +50,6 @@ def upload_file():
         # 画像ファイルを基にしたハッシュ関数を生成
         imghash = img_hash(request.files.get('image'))
 
-        
         if not jsonfile['codnat'] == []:
             # loglimit分以上前の古いデータを削除
             now = time.time()
@@ -73,7 +75,7 @@ def chat_with_gpt():
     """fileIdと座標を受け取り、GPTで説明を生成してfileIdに基づいた出力を返す"""
 
     #fileIdによるセッション識別
-    queryparam = request.args.get("fileId")
+    queryparam = request.args.get('fileId')
     if queryparam is not None:
         target = next((data.index(d) for d in data if d['fileId'] == queryparam), None)
         if target == None:
