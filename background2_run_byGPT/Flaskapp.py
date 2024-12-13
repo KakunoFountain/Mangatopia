@@ -1,31 +1,22 @@
 from flask import Flask, request, render_template, jsonify, redirect
 import os
+import time
 import json
-from PIL import Image
 
-from OpenAI_GPT4o import uploaded_image, descripting_onmtp
+from OpenAI_GPT4o import img_hash, save_image, descripting_onmtp
+
 
 
 app = Flask(__name__)
+app.json.ensure_ascii = False
 UPLOAD_FOLDER = 'uploadpics'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 PORT = os.getenv("PORT")
 
-#解析対象画像の情報 -> "fileId", "codnat"
-data = {}
+#解析対象画像の情報 -> {"fileId": , "filepath": , "codnat": , "explanation": , "timestamp": }
+data = []
 
-# アップロードされたファイルを保存する関数
-def save_image(file):
-    file_path = os.path.join(UPLOAD_FOLDER, data['fileId']+".jpg")
-    im = Image.open(file)
 
-    if ".jpg" in file.filename or ".jpeg" in file.filename:
-        pass
-    else:
-        im = im.convert("RGB")
-    im.save(file_path, "JPEG")
-    
-    return file_path
 
 @app.route('/index')
 def index():
@@ -35,7 +26,7 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload_file():
 
-    """HTMLフォームから送られてきた画像ファイルを処理する"""
+    """HTMLフォームから送られてきた画像ファイルと座標を処理する"""
     jsonfile = json.loads( request.files['coordinates'].read() )
     data['codnat'] = jsonfile['codnat']
     
@@ -44,27 +35,32 @@ def upload_file():
     
     file = request.files['image']
 
-    #画像がアップロードされなかった場合
+    #画像ファイルを受け取らなかった場合
     if file.filename == '':
         #指定されたfileIdに対応する画像がサーバに保存されていた場合
         if not jsonfile['fileId'] == '' and os.path.exists( os.path.join(UPLOAD_FOLDER, jsonfile['fileId']+".jpg") ):
-            data['fileId'] = jsonfile['fileId']
-            data['filepath'] = os.path.join(UPLOAD_FOLDER, jsonfile['fileId']+".jpg")
             return jsonify({"message": "File selected successfully", "fileId": jsonfile['fileId'], "codnat": jsonfile['codnat']}), 200
-        
         else:
             return jsonify({"error": "No existing file *Please uploading your file again"}), 400
-
+    #画像ファイルを受け取った場合
     else:
-        # 画像ファイルをopenaiにアップロード
-        uploaded_img = uploaded_image(file)
+        # 画像ファイルを基にしたハッシュ関数を生成
+        imghash = img_hash(file)
 
         # 画像ファイルを保存
         if not jsonfile['codnat'] == []:
-            data['filepath'] = os.path.join(UPLOAD_FOLDER, uploaded_img.id+".jpg")
-            data['fileId'] = uploaded_img.id
-            filepath = save_image(file)
-            return jsonify({"message": "File saved successfully", "fileId": uploaded_img.id, "codnat": jsonfile['codnat']}), 200
+            #loglimit分以上前の古いデータを削除
+            now = time.time()
+            loglimit = 30
+            while ( now - data[0]['timestamp'] >= loglimit*60 ):
+                if( os.path.isfile(data[0]['filepath']) ): os.remove(data[0]['filepath'])
+                data.pop(0)
+
+            filepath = save_image(file, imghash, UPLOAD_FOLDER)
+            data.append({"fileId": imghash, "filepath": filepath, "codnat": jsonfile['codnat'], "timestamp": now})
+            print(f"data = {data}")
+
+            return jsonify({"message": "File saved successfully", "fileId": imghash, "codnat": jsonfile['codnat']}), 200
         else:
             return jsonify({"error": "Failed to save file"}), 400
 
@@ -72,17 +68,24 @@ def upload_file():
 
 @app.route('/chat', methods=['GET'])
 def chat_with_gpt():
-    """fileIdと座標を受け取り、GPTで説明を生成して返す"""
-    print(data)
+    """fileIdと座標を受け取り、GPTで説明を生成してfileIdに基づいた出力を返す"""
+
+    #fileIdによるセッション識別
+    queryparam = request.args.get("fileId")
+    if queryparam is not None:
+        target = next((data.index(d) for d in data if d['fileId'] == queryparam), None)
+    else:
+        return jsonify({"error": "Query parameter:'fileId' not found"}), 404
 
     # アップロードされたファイルを読み込む
-    if not os.path.exists(data['filepath']):
+    if not os.path.exists(data[target]['filepath']):
         return jsonify({"error": "File not found"}), 404
 
     # GPTにリクエスト
     try:
         #outputscript = "aaa"
-        outputscript = descripting_onmtp(filepath=data['filepath'], fileId=data['fileId'], codnat=data['codnat'])
+        outputscript = descripting_onmtp(filepath=data[target]['filepath'], fileId=data[target]['fileId'], codnat=data[target]['codnat'])
+        data[target]['explanation'] = outputscript
     except Exception as e:
         return jsonify({"error": f"GPT request failed: {str(e)}"}), 500
 
