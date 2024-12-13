@@ -14,7 +14,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 PORT = os.getenv("PORT")
 
 #解析対象画像の情報 -> {"fileId": , "filepath": , "codnat": , "explanation": , "timestamp": }
-data = []
+data = [{}]
 
 
 
@@ -47,15 +47,17 @@ def upload_file():
         # 画像ファイルを基にしたハッシュ関数を生成
         imghash = img_hash(request.files.get('image'))
 
-        # 画像ファイルを保存
+        
         if not jsonfile['codnat'] == []:
-            #loglimit分以上前の古いデータを削除
+            # loglimit分以上前の古いデータを削除
             now = time.time()
             loglimit = 30
-            while ( now - data[0]['timestamp'] >= loglimit*60 ):
-                if( os.path.isfile(data[0]['filepath']) ): os.remove(data[0]['filepath'])
-                data.pop(0)
+            if data[0]:
+                while ( now - data[0]['timestamp'] >= loglimit*60 ):
+                    if( os.path.isfile(data[0]['filepath']) ): os.remove(data[0]['filepath'])
+                    data.pop(0)
 
+            # 画像ファイルを保存
             filepath = save_image(file, imghash, UPLOAD_FOLDER)
             data.append({"fileId": imghash, "filepath": filepath, "codnat": jsonfile['codnat'], "timestamp": now})
             print(f"data = {data}")
