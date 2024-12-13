@@ -78,6 +78,7 @@ def chat_with_gpt():
     queryparam = request.args.get('fileId')
     if queryparam is not None:
         target = next((data.index(d) for d in data if d['fileId'] == queryparam), None)
+        print(target)
         if target == None:
             return jsonify({"error": "Query parameter:'fileId' not found"}), 404
     else:
