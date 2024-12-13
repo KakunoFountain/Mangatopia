@@ -17,9 +17,8 @@ def encode_image(image_path):
 
 #画像からハッシュ関数生成
 def img_hash(file):
-    with open(file, 'rb') as f:
-        md5 = hashlib.md5(f.read()).hexdigest()
-        f.seek(0)
+    md5 = hashlib.md5(file.read()).hexdigest()
+    file.seek(0)
     return md5
 
 # アップロードされたファイルを保存する関数
