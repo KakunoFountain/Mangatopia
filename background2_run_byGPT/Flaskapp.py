@@ -45,7 +45,7 @@ def upload_file():
     #画像ファイルを受け取った場合
     else:
         # 画像ファイルを基にしたハッシュ関数を生成
-        imghash = img_hash(file)
+        imghash = img_hash(request.files.get('image'))
 
         # 画像ファイルを保存
         if not jsonfile['codnat'] == []:
