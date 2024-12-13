@@ -52,7 +52,7 @@ def upload_file():
             # loglimit分以上前の古いデータを削除
             now = time.time()
             loglimit = 30
-            if data[0]:
+            if data:
                 while ( now - data[0]['timestamp'] >= loglimit*60 ):
                     if( os.path.isfile(data[0]['filepath']) ): os.remove(data[0]['filepath'])
                     data.pop(0)
