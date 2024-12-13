@@ -13,8 +13,8 @@ UPLOAD_FOLDER = 'uploadpics'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 PORT = os.getenv("PORT")
 
-#解析対象画像の情報 -> {"fileId": , "filepath": , "codnat": , "explanation": , "timestamp": }
-data = [{}]
+#解析対象画像の情報 -> {"fileId": , "filepath": , "codnat": , "timestamp": ,"explanation": }
+data = [{"fileId": None}]
 
 
 
