@@ -28,7 +28,6 @@ def upload_file():
 
     """HTMLフォームから送られてきた画像ファイルと座標を処理する"""
     jsonfile = json.loads( request.files['coordinates'].read() )
-    data['codnat'] = jsonfile['codnat']
     
     if 'image' not in request.files:
         return jsonify({"error": "No file part"}), 400
@@ -39,6 +38,7 @@ def upload_file():
     if file.filename == '':
         #指定されたfileIdに対応する画像がサーバに保存されていた場合
         if not jsonfile['fileId'] == '' and os.path.exists( os.path.join(UPLOAD_FOLDER, jsonfile['fileId']+".jpg") ):
+            
             return jsonify({"message": "File selected successfully", "fileId": jsonfile['fileId'], "codnat": jsonfile['codnat']}), 200
         else:
             return jsonify({"error": "No existing file *Please uploading your file again"}), 400
@@ -74,6 +74,8 @@ def chat_with_gpt():
     queryparam = request.args.get("fileId")
     if queryparam is not None:
         target = next((data.index(d) for d in data if d['fileId'] == queryparam), None)
+        if target == None:
+            return jsonify({"error": "Query parameter:'fileId' not found"}), 404
     else:
         return jsonify({"error": "Query parameter:'fileId' not found"}), 404
 
