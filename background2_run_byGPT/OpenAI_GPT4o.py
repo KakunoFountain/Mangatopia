@@ -3,6 +3,7 @@ from openai import OpenAI
 import base64
 from PIL import Image
 import hashlib
+import io
 
 client = OpenAI(
     api_key = os.getenv("OPENAI_APIKEY")
@@ -29,30 +30,48 @@ def save_image(file, hash, UPLOAD_FOLDER):
     #長辺1920px以下にリサイズ
     if im.width > 1920 or im.height > 1920:
         if im.width > im.height:
-            im = im.resize(1920, im.height*1920/im.width)
+            im = im.resize( 1920, int(im.height*1920/im.width) )
         else:
-            im = im.resize(im.width*1920/im.height, 1920)
+            im = im.resize( int(im.width*1920/im.height), 1920 )
 
     if ".jpg" in file.filename or ".jpeg" in file.filename:
         pass
     else:
         im = im.convert("RGB")
     im.save(filepath, "JPEG")
+
+    im_str = encode_image(filepath)
     
-    return filepath
+    return filepath, im_str
 
 #this is the summerized function
 def descripting_onmtp(filepath, fileId, codnat):
+    
+    # # Example\n\
+    # ## Input\n\
+    # - Manga panel: A character stands on a cliff with 'ドキドキ' written.\n\
+    # ## Output\n\
+    # - In this scene, the character stands on a cliff. 'Doki doki' represents a pounding heart, expressing tension, anxiety, or anticipation. The background shows a high cliff and a vast sky. The gaze is distant, and the expression is slightly tense, conveying mixed feelings of determination and unease. The character’s facial tension and forehead sweat reflect fear.\n\
+    
 
-    # instructions = "あなたはカジュアルな口調で話す。漫画のワンシーンから指定されたオノマトペの意義を熱弁する。\
-    #     なお入力画像の座標(x,y)の原点は最も左上にとり、右に向かってx軸、下に向かってy軸の正方向とする。"
-    # inputscript = f"左上の座標を({codnat[0][0]},{codnat[0][1]})，\
-    #     右下の座標を({codnat[1][0]},{codnat[1][1]})として表される \
-    #     矩形に配置されるオノマトペはどんな意図で使われてる？ \
-    #     一般的な意見ではなく、画像全体から詳しく説明して．"
-    instructions = os.getenv("INSTRUCTIONS")
-    inputscript = os.getenv("INPUTSCRIPT")
-
+    instructions = "# Instructions\n\
+1. Onomatopoeia Explanation\n\
+- Clearly explain the sound, emotion, or action represented by the onomatopoeia for non-native readers.\n\
+2. Context Consideration\n\
+- Provide a brief explanation of the scene based on the preceding and following story or dialogue.\n\
+3. Manga Scene Description\n\
+- Describe the image, background, and situation where the onomatopoeia is used.\n\
+4. Character Analysis\n\
+- Convey the character's emotions clearly based on their gaze and facial expressions.\n\
+# Output Format\n\
+- Provide a concise, single-line English explanation within 50 words.\n\
+# Notes\n\
+- If direct translation is difficult, use actions or situations to provide clarity.\n\
+- Use visual imagery or analogies to avoid ambiguity.\n\
+- The origin of the coordinates (x, y) of the input image is set at the top left, with the positive direction of the x-axis toward the right and the positive direction of the y-axis toward the bottom."   
+    
+    inputscript = f"Onomatopoeia whose top left coodinate is ({codnat[0][0]},{codnat[0][1]}) and bottom right coodinate is ({codnat[1][0]},{codnat[1][1]}) explained in English for non-native speakers. The explanation should consider the context, characters' gaze, and facial expressions, and be within 75 words."
+    
     print(f"instructions = {instructions} \ninputscript = {inputscript}")
 
     base64_image = encode_image(filepath)

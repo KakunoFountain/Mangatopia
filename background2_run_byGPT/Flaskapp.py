@@ -39,12 +39,18 @@ def upload_file():
         #指定されたfileIdに対応する画像がサーバに保存されていた場合
         if not jsonfile['fileId'] == '' and os.path.exists( os.path.join(UPLOAD_FOLDER, jsonfile['fileId']+".jpg") ):
             target = next((data.index(d) for d in data if d['fileId'] == jsonfile['fileId']), None)
+
             if target == None:
                 return jsonify({"error": "No existing file *Please uploading your file again"}), 400
+            
             data[target]['codnat'] = jsonfile['codnat']
+            print(f"data = {data}")
+
             return jsonify({"message": "File selected successfully", "fileId": jsonfile['fileId'], "codnat": jsonfile['codnat']}), 200
+        
         else:
             return jsonify({"error": "No existing file *Please uploading your file again"}), 400
+        
     #画像ファイルを受け取った場合
     else:
         # 画像ファイルを基にしたハッシュ関数を生成
@@ -60,11 +66,11 @@ def upload_file():
                     data.pop(0)
 
             # 画像ファイルを保存
-            filepath = save_image(file, imghash, UPLOAD_FOLDER)
+            (filepath, convertedimg) = save_image(file, imghash, UPLOAD_FOLDER)
             data.append({"fileId": imghash, "filepath": filepath, "codnat": jsonfile['codnat'], "timestamp": now})
             print(f"data = {data}")
 
-            return jsonify({"message": "File saved successfully", "fileId": imghash, "codnat": jsonfile['codnat']}), 200
+            return jsonify({"message": "File saved successfully", "fileId": imghash, "codnat": jsonfile['codnat'], "convertedimg": convertedimg}), 200
         else:
             return jsonify({"error": "Failed to save file"}), 400
 
@@ -79,23 +85,31 @@ def chat_with_gpt():
     if queryparam is not None:
         target = next((data.index(d) for d in data if d['fileId'] == queryparam), None)
         print(target)
+
         if target == None:
             return jsonify({"error": "Query parameter:'fileId' not found"}), 404
+        
     else:
         return jsonify({"error": "Query parameter:'fileId' not found"}), 404
 
-    # アップロードされたファイルを読み込む
-    if not os.path.exists(data[target]['filepath']):
-        return jsonify({"error": "File not found"}), 404
+    #同じ画像と座標の組でgpt出力生成済み
+    if 'explanation' in data[target]:
+        outputscript = data[target]['explanation']
+        print("already generated")
+    else:
+        # アップロードされたファイルを読み込む
+        if not os.path.exists(data[target]['filepath']):
+            return jsonify({"error": "File not found"}), 404
 
-    # GPTにリクエスト
-    try:
-        #outputscript = "aaa"
-        outputscript = descripting_onmtp(filepath=data[target]['filepath'], fileId=data[target]['fileId'], codnat=data[target]['codnat'])
-        data[target]['explanation'] = outputscript
-    except Exception as e:
-        return jsonify({"error": f"GPT request failed: {str(e)}"}), 500
+        # GPTにリクエスト
+        try:
+            #outputscript = "aaa"
+            outputscript = descripting_onmtp(filepath=data[target]['filepath'], fileId=data[target]['fileId'], codnat=data[target]['codnat'])
+            data[target]['explanation'] = outputscript
+        except Exception as e:
+            return jsonify({"error": f"GPT request failed: {str(e)}"}), 500
 
+    print(f"data = {data}")
     return jsonify({"explanation": outputscript}), 200
 
 
